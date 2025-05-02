@@ -8,9 +8,12 @@ public class Email{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private long emailId;
 
-    private long userEmail;
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "id", name = "user_id")
+    private User user;
 
     private String content;
 
@@ -18,12 +21,13 @@ public class Email{
 
     private String sender;
 
-    public long getUserEmail() {
-        return userEmail;
+
+    public User getUser() {
+        return user;
     }
 
-    public void setUserEmail(long userEmail) {
-        this.userEmail = userEmail;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public long getEmailId() {

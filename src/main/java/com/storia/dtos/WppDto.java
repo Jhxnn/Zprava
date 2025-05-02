@@ -1,4 +1,4 @@
 package com.storia.dtos;
 
-public record WppDto() {
+public record WppDto(String wppNumber) {
 }

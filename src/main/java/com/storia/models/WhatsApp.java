@@ -8,10 +8,10 @@ public class WhatsApp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private long wppId;
 
-    private String wppNumber;
-
+    @OneToMany
     @JoinColumn(referencedColumnName = "id", name = "email_id")
     private Email email;
 
@@ -21,14 +21,6 @@ public class WhatsApp {
 
     public void setWppId(long wppId) {
         this.wppId = wppId;
-    }
-
-    public String getWppNumber() {
-        return wppNumber;
-    }
-
-    public void setWppNumber(String wppNumber) {
-        this.wppNumber = wppNumber;
     }
 
     public Email getEmail() {
