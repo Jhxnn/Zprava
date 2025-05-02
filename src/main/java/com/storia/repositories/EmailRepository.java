@@ -1,4 +1,7 @@
 package com.storia.repositories;
 
-public interface EmailRepository {
+import com.storia.models.Email;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+
+public class EmailRepository implements PanacheRepository<Email> {
 }
