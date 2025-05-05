@@ -15,7 +15,7 @@ public class EmailReader {
     @Inject
     EmailConfig emailConfig;
 
-    public List<EmailDto> lerEmailsComFiltro(String filtro) throws Exception {
+    public List<EmailDto> readEmailWithFilter(String filtro) throws Exception {
 
         String host = emailConfig.host;
         String username = emailConfig.username;
