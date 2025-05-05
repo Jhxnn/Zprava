@@ -15,9 +15,9 @@ public class Email{
     @JoinColumn(referencedColumnName = "id", name = "user_id")
     private User user;
 
-    private String content;
-
     private String title;
+
+    private String content;
 
     private String sender;
 

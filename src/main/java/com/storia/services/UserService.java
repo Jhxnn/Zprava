@@ -13,11 +13,14 @@ public class UserService {
     @Inject
     UserRepository userRepository;
 
-    private List<User> findAll(){
+    public List<User> findAll(){
         return userRepository.listAll();
     }
-    private User findById(long id){
+    public User findById(long id){
         return userRepository.findById(id);
+    }
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email);
     }
 
 }

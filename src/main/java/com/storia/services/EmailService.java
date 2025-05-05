@@ -33,10 +33,10 @@ public class EmailService {
         List<EmailDto> listEmail = emailReader.readEmailWithFilter(filter);
         for(EmailDto emailDto : listEmail){
             Email email = new Email();
+            email.setUser(userService.findByEmail(emailDto.userEmail()));
+            email.setTitle(emailDto.title());
             email.setContent(emailDto.content());
             email.setSender(emailDto.sender());
-            email.setTitle(emailDto.title());
-//            email.setUser(userService.findByEmail(emailDto.userEmail()));
             emailRepository.persist(email);
         }
         return listEmail;
