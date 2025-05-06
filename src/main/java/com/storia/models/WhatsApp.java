@@ -1,17 +1,19 @@
 package com.storia.models;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "whatsapp")
-public class WhatsApp {
+public class WhatsApp extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private long wppId;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id", name = "email_id")
     private Email email;
 
