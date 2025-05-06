@@ -18,14 +18,18 @@ public class EmailReader {
     public List<EmailDto> readEmailWithFilter(String filtro) throws Exception {
 
         String host = emailConfig.host;
-        String username = emailConfig.username;
-        String password = emailConfig.password;
+        String username = emailConfig.getUsername();
+        String password = emailConfig.getPassword();
 
-                Properties props = new Properties();
+        Properties props = new Properties();
         props.put("mail.store.protocol", "imaps");
+        props.put("mail.imaps.host", "imap.gmail.com");
+        props.put("mail.imaps.port", "993");
+        props.put("mail.imaps.ssl.enable", "true");
+        props.put("mail.imaps.auth", "true");
 
         Session session = Session.getInstance(props);
-        Store store = session.getStore();
+        Store store = session.getStore("imaps");
         store.connect(host, username, password);
 
         Folder inbox = store.getFolder("INBOX");
