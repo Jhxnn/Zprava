@@ -1,70 +1,78 @@
 package com.storia.config;
 
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.*;
 import com.storia.dtos.EmailDto;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.mail.*;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
 
 @ApplicationScoped
 public class EmailReader {
 
-    @Inject
-    EmailConfig emailConfig;
+    private final Gmail gmailService;
+
+    public EmailReader() throws Exception {
+        this.gmailService = EmailConfig.getGmailService();
+    }
 
     public List<EmailDto> readEmailWithFilter(String filtro) throws Exception {
+        List<EmailDto> result = new ArrayList<>();
 
-        String host = emailConfig.host;
-        String username = emailConfig.getUsername();
-        String password = emailConfig.getPassword();
+        ListMessagesResponse response = gmailService.users().messages()
+                .list("me")
+                .setQ("in:inbox")
+                .setMaxResults(20L)
+                .execute();
 
-        Properties props = new Properties();
-        props.put("mail.store.protocol", "imaps");
-        props.put("mail.imaps.host", "imap.gmail.com");
-        props.put("mail.imaps.port", "993");
-        props.put("mail.imaps.ssl.enable", "true");
-        props.put("mail.imaps.auth", "true");
+        List<Message> messages = response.getMessages();
+        if (messages == null) return result;
 
-        Session session = Session.getInstance(props);
-        Store store = session.getStore("imaps");
-        store.connect(host, username, password);
+        for (Message messageSummary : messages) {
+            Message fullMessage = gmailService.users().messages().get("me", messageSummary.getId()).setFormat("FULL").execute();
 
-        Folder inbox = store.getFolder("INBOX");
-        inbox.open(Folder.READ_ONLY);
+            String body = getTextFromMessage(fullMessage);
+            String subject = getHeader(fullMessage, "Subject");
+            String from = getHeader(fullMessage, "From");
 
-        Message[] messages = inbox.getMessages();
-        System.out.println("Total de mensagens: " + messages.length);
-        List<EmailDto> listEmail = new ArrayList<>();
-        for (Message message : messages) {
-            Object content = message.getContent();
-            String text = "";
-
-
-            if (content instanceof String) {
-                text = (String) content;
-            } else if (content instanceof Multipart) {
-                Multipart multipart = (Multipart) content;
-                for (int j = 0; j < multipart.getCount(); j++) {
-                    BodyPart part = multipart.getBodyPart(j);
-                    if (part.isMimeType("text/plain")) {
-                        text += part.getContent().toString();
-                    }
-                }
-            }
-
-            if (text.toLowerCase().contains(filtro.toLowerCase())) {
-                EmailDto emailDto = new EmailDto(username,text, message.getSubject(),String.valueOf(message.getFrom()[0]));
-                listEmail.add(emailDto);
+            if (body.toLowerCase().contains(filtro.toLowerCase())) {
+                EmailDto emailDto = new EmailDto("me", body, subject, from);
+                result.add(emailDto);
             }
         }
 
-        inbox.close(false);
-        store.close();
-        return  listEmail;
+        return result;
     }
 
+    private String getTextFromMessage(Message message) throws Exception {
+        if (message.getPayload() == null) return "";
+        return getTextFromParts(message.getPayload().getParts());
+    }
 
+    private String getTextFromParts(List<MessagePart> parts) throws Exception {
+        if (parts == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+        for (MessagePart part : parts) {
+            if (part.getMimeType().equals("text/plain") && part.getBody() != null) {
+                byte[] bytes = Base64.getUrlDecoder().decode(part.getBody().getData());
+                sb.append(new String(bytes));
+            } else if (part.getParts() != null) {
+                sb.append(getTextFromParts(part.getParts()));
+            }
+        }
+        return sb.toString();
+    }
+
+    private String getHeader(Message message, String name) {
+        if (message.getPayload() == null) return "";
+        for (MessagePartHeader header : message.getPayload().getHeaders()) {
+            if (header.getName().equalsIgnoreCase(name)) {
+                return header.getValue();
+            }
+        }
+        return "";
+    }
 }
