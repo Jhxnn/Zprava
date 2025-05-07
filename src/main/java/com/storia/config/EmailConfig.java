@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class EmailConfig {
-
     private static final String APPLICATION_NAME = "Leitor de Email";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
