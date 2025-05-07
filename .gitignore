@@ -19,7 +19,7 @@ tokens
 *.iml
 *.iws
 
-# NetBeans
+# NetBeansg
 nb-configuration.xml
 client_secret.json
 src/main/resources/client_secret.json
